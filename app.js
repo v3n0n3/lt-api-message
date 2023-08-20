@@ -19,7 +19,7 @@ const routeAllMessages = require("./src/routes/MessageList");
  */
 const application = express();
 
-database.getAllmessages();
+//database.getAllmessages();
 
 
 /**
@@ -27,9 +27,10 @@ database.getAllmessages();
  */
 //routeTest(application);
 
-routeAllMessages(application);
+routeAllMessages(application, database);
 
 application.use((req, res)=>{
+    console.log("Route non valide appelée");
     res.status(404).json({message : "Aucune route ne correspond à votre demande", erreur: 404});
 });
 

@@ -17,13 +17,19 @@ const connexion = new Sequelize(process.env.DATABASE_NAME, process.env.DB_USER, 
 const ContactMessage = contactMessageModel(connexion, DataTypes);
 
 
-function getAllmessages(){
-    console.log("Connexion à la base de données établie");
-    console.log(process.env.DATABASE_IP_ADDRESS);
-    ContactMessage.findAll().then((x)=>{
-        console.log(x[1]);
+async function getAllMessages(){
+
+    const fetchData = await ContactMessage.findAll({
+        attributes : ['name_firstname','email','message']
     });
+
+    const allMessages = await fetchData.map( element => element.toJSON()); 
+
+    console.log(allMessages);
+    return allMessages;
+
+    
 }
 
 
-module.exports = { getAllmessages }
+module.exports = { getAllMessages }
