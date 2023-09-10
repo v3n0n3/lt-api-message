@@ -55,4 +55,16 @@ async function getMessageById(id){
     } 
 }
 
-module.exports = { getAllMessages, getMessageById }
+async function createUser(user){
+    try{
+        User.create(user);
+    } catch (error) {
+        return { 
+            status: 500,
+            message : "Erreur lors de la requête, veuillez réesayer ulterieurement",
+            error: error.message
+        }
+    } 
+}
+
+module.exports = { getAllMessages, getMessageById, createUser }

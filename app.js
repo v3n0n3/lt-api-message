@@ -30,7 +30,7 @@ application.use(express.urlencoded({ extended: true })); // Pour les données de
 /**
  * Routes de l'application
  */
-//routeTest(application);
+routeTest(application);
 
 routeAllMessages(application, database);
 routeMessages(application, database);
@@ -53,35 +53,37 @@ application.post("/check-password", async (req, res) => {
     }
 });
 
-application.post("/register", (req, res) => {
-    const { name, firstname, email , password } = req.body;
-
-    res.json({
-        name: name,
-        firstname: firstname,
-        emai: email,
-        password:password
-    });
-/** 
+application.post("/register", async (req, res) => {
     try {
         // Générer un sel pour le hachage
         const saltRounds = 10;
-        const salt = await bcrypt.genSalt(saltRounds);
+        const salt =  await bcrypt.genSalt(saltRounds);
 
         // Hacher le mot de passe
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    
+        database.createUser({
+            name: req.body.name.toLowerCase(),
+            firstname: req.body.firstname.toLowerCase(),
+            email: req.body.email.toLowerCase(),
+            password: hashedPassword
+        });
 
-        // Enregistrez l'utilisateur avec le mot de passe haché dans votre base de données
-        // Ici, nous supposons que vous avez une fonction d'enregistrement dans votre base de données
-
-        // Après l'enregistrement, renvoyez une réponse appropriée
-        res.status(201).send("Utilisateur enregistré avec succès !");
+        res.status(201).json(
+            {
+                message: "Utilisateur enregistré avec succès !",
+                status: 201
+            });
     } catch (error) {
         console.error("Erreur lors de la création de l'utilisateur :", error);
-        res.status(500).send("Une erreur s'est produite lors de la création de l'utilisateur.");
+        res.status(500).json(
+            {
+                message: "Une erreur s'est produite lors de la création de l'utilisateur.",
+                status: 500
+            });
     }
-    */
 });
+
 
 application.use((req, res)=>{
     console.log("Route non valide appelée");
