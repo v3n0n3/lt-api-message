@@ -14,6 +14,8 @@ const database = require("./src/database/connexion");
 const routeTest = require("./src/routes/Test");
 const routeAllMessages = require("./src/routes/MessageList");
 const routeMessages= require("./src/routes/Message");
+const passport = require('passport');
+const passportConfig = require('./passport-config');
 
 
 /**
@@ -23,6 +25,7 @@ const application = express();
 
 application.use(express.json());
 application.use(express.urlencoded({ extended: true })); // Pour les données de formulaire
+//application.use();
 
 //database.getAllmessages();
 
