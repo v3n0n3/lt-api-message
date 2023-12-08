@@ -16,6 +16,9 @@ module.exports = (sequelize, DataTypes) => {
             },
             message: {
                 type : DataTypes.STRING(255)
+            },
+            ip: {
+                type: DataTypes.STRING(15)
             }
         }
     )

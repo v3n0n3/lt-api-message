@@ -6,92 +6,55 @@ require('dotenv').config()
 
 
 /**
- * Chargement des différents modules
+ * Importing modules
  */
+const path = require("path");
 const express = require("express");
+const session = require("express-session");
+const router = require("./src/routes/index");
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const {Sequelize, DataType } = require("sequelize");
 const bcrypt = require("bcrypt");
-const database = require("./src/database/connexion");
-const routeTest = require("./src/routes/Test");
-const routeAllMessages = require("./src/routes/MessageList");
-const routeMessages= require("./src/routes/Message");
+const database = require("./src/database/connection");
 const passport = require('passport');
-const passportConfig = require('./passport-config');
+
 
 
 /**
- * Instanciation des objets et déclaration des variables
+ * Express instance && config
  */
 const application = express();
 
+application.set("views", path.join(__dirname, 'views'));
+application.set("view engine", "html");
+
 application.use(express.json());
 application.use(express.urlencoded({ extended: true })); // Pour les données de formulaire
-//application.use();
+application.use(session({
+    secret : process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+    store: new SequelizeStore({
+        db: database.connection
+    }),
+    cookie: {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+    }
+}));
 
-//database.getAllmessages();
+/**
+ * Authentication middleware
+ */
+require("./src/config/passport");
+application.use(passport.initialize());
+application.use(passport.session());
 
 
 /**
- * Routes de l'application
+ * Route of the application
  */
-routeTest(application);
-
-routeAllMessages(application, database);
-routeMessages(application, database);
-
-application.post("/check-password", async (req, res) => {
-    const providedPassword = req.body.password; // Mot de passe fourni dans la requête
-    const hashedPasswordFromDatabase = "hashed_password_from_database"; // Récupérez le mot de passe haché de la base de données
-
-    try {
-        const passwordMatch = await bcrypt.compare(providedPassword, hashedPasswordFromDatabase);
-
-        if (passwordMatch) {
-            res.status(200).send("Le mot de passe est correct !");
-        } else {
-            res.status(401).send("Le mot de passe est incorrect.");
-        }
-    } catch (error) {
-        console.error("Erreur lors de la vérification du mot de passe :", error);
-        res.status(500).send("Une erreur s'est produite lors de la vérification du mot de passe.");
-    }
-});
-
-application.post("/register", async (req, res) => {
-    try {
-        // Générer un sel pour le hachage
-        const saltRounds = 10;
-        const salt =  await bcrypt.genSalt(saltRounds);
-
-        // Hacher le mot de passe
-        const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    
-        database.createUser({
-            name: req.body.name.toLowerCase(),
-            firstname: req.body.firstname.toLowerCase(),
-            email: req.body.email.toLowerCase(),
-            password: hashedPassword
-        });
-
-        res.status(201).json(
-            {
-                message: "Utilisateur enregistré avec succès !",
-                status: 201
-            });
-    } catch (error) {
-        console.error("Erreur lors de la création de l'utilisateur :", error);
-        res.status(500).json(
-            {
-                message: "Une erreur s'est produite lors de la création de l'utilisateur.",
-                status: 500
-            });
-    }
-});
-
-
-application.use((req, res)=>{
-    console.log("Route non valide appelée");
-    res.status(404).json({message : "Aucune route ne correspond à votre demande", erreur: 404});
-});
+application.use(router(database));
 
 /**
  * Execution de l'application
