@@ -2,6 +2,8 @@ const passport = require("passport");
 const LocalStrategy = require('passport-local').Strategy;
 const connection = require("../database/connection");
 const User = require("../models/ObjectUser");
+const { Utils } = require("sequelize");
+const validPassword = require("../utilities/uti_password");
 
 const customFields = {
     usernameFiled: "email",

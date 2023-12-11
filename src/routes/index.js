@@ -1,29 +1,53 @@
 const  path = require("path");
 const router = require("express").Router();
 const passport = require("passport");
+const { passwordGeneration } = require("../utilities/uti_password");
 const passwordUtilities = require("../utilities/uti_password");
 
 module.exports = (database) => {
-
     router.get("/", (req, res)=>{
-        console.log(req.session);
         res.send(`
         <h1>Test route of the web service</h1>
         <p>To use the web service you must be registered -> <a href="/register">register here</a> <- </p>
         `);
     });
 
-    router.get("/login", (req, res)=>{
+    router.get("/api/login", (req, res)=>{
         res.sendFile("login.html", 
             { root: path.join(__dirname, '../views') 
         });
     });
 
-    router.get("/register", (req, res)=>{
+    router.get("/api/register", (req, res)=>{
+
         res.sendFile("register.html", 
             { root: path.join(__dirname, '../views') 
         });
     });
+
+
+    router.post("/api/register", async (req, res) => {
+        // Creatation of a new user
+        // -> Some check to add
+        const newUser = {
+            name: req.body.name,
+            firstname: req.body.firstname,
+            email: req.body.email,
+            password: await passwordUtilities.passwordHash(req.body.password)
+        };
+
+        console.log(newUser.password);
+
+        database.createUser(newUser);
+     
+
+        res.sendFile("login.html", 
+            { root: path.join(__dirname, '../views') 
+        });
+
+        
+
+    })
 
     router.get("/api/messages-liste", (req, res)=>{
         try {
@@ -47,7 +71,6 @@ module.exports = (database) => {
 
 
     router.get("/api/message/:messageId", (req, res)=>{
-        console.log(req.params.messageId);
         try{
 
         database.getMessageById(req.params.messageId).then(message => {
@@ -66,9 +89,8 @@ module.exports = (database) => {
         }
     });
 
-    router.post("login", passport.authenticate("local"), (req, res, next) =>{
-
-    });
+    //router.post("login", passport.authenticate("local"), (req, res, next) =>{
+    //});
 
     return router;
 

@@ -30,6 +30,8 @@ application.set("view engine", "html");
 
 application.use(express.json());
 application.use(express.urlencoded({ extended: true })); // Pour les données de formulaire
+
+
 application.use(session({
     secret : process.env.SECRET_KEY,
     resave: false,
@@ -47,6 +49,7 @@ application.use(session({
  * Authentication middleware
  */
 require("./src/config/passport");
+
 application.use(passport.initialize());
 application.use(passport.session());
 
@@ -60,5 +63,5 @@ application.use(router(database));
  * Execution de l'application
  */
 application.listen(process.env.SERVER_PORT, ()=>{
-    console.log("Serveur démarré");
+    console.log(`Server started on port ${process.env.SERVER_PORT}`);
 });

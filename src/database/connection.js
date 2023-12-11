@@ -53,7 +53,7 @@ async function getAllMessages(){
     } catch (error){
         return { 
             status: 500,
-            message : "Erreur lors de la requête, veuillez réesayer ulterieurement",
+            message : "Error during the request, please try later",
             error: error.message
         }
     }
@@ -69,19 +69,37 @@ async function getMessageById(id){
     } catch (error) {
         return { 
             status: 500,
-            message : "Erreur lors de la requête, veuillez réesayer ulterieurement",
+            message : "Error during the request, please try later",
             error: error.message
         }
     } 
 }
 
 async function createUser(user){
+
     try{
-        User.create(user);
+        const newUser = await User.findOne(
+            {
+                where: {
+                    email: user.email
+                }
+            }
+        );
+
+        if (!newUser){
+            User.create(user);
+            return {
+                status: 201,
+                message : `The user ${user.firstname} ${user.name} have been created`,
+            }
+        } else {
+            console.log("User does not exist");
+        }
+        
     } catch (error) {
         return { 
             status: 500,
-            message : "Erreur lors de la requête, veuillez réesayer ulterieurement",
+            message : "Error during the request, please try later",
             error: error.message
         }
     } 

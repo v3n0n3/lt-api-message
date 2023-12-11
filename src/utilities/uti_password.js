@@ -1,13 +1,15 @@
-const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
-function passwordValidation(){
-
+function passwordHash(password){
+    return bcrypt.hash(password, 10);
 }
-function passwordGeneration(){
 
+
+function passwordMatch(passwordEntered, databaseHash){
+    return passwordEntered == databaseHash;
 }
 
 module.exports = {
-    passwordValidation,
-    passwordGeneration
+    passwordHash,
+    passwordMatch
 }
