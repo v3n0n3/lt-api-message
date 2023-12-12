@@ -8,7 +8,7 @@ module.exports = (database) => {
     router.get("/", (req, res)=>{
         res.send(`
         <h1>Test route of the web service</h1>
-        <p>To use the web service you must be registered -> <a href="/register">register here</a> <- </p>
+        <p>To use the web service you must be registered -> <a href="/api/register">register here</a> <- </p>
         `);
     });
 
